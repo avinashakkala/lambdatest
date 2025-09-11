@@ -25,7 +25,7 @@ class User(BaseModel):
 # Routes
 @app.get("/")
 async def root():
-    return {"message": "FastAPI Lambda Backend is running!"}
+    return {"message": "FastAPI Lambda Backend is running!!"}
 
 @app.post("/users")
 async def create_user(user: User):   # use async for Lambda safety
@@ -40,3 +40,4 @@ async def count_users():
 
 # AWS Lambda handler
 handler = Mangum(app, lifespan="off")
+
