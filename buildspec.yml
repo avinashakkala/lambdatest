@@ -1,0 +1,30 @@
+version: 0.2
+
+env:
+  variables:
+    REPOSITORY_URI: "683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:latest"
+    LAMBDA_FUNCTION_NAME: "fastapilam"
+    AWS_DEFAULT_REGION: "ap-south-1"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH}
+  build:
+    commands:
+      - echo Building Docker image...
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
+      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
+  post_build:
+    commands:
+      - echo Pushing Docker image to ECR...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - echo "Updating Lambda function to use new image..."
+      - aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --image-uri $REPOSITORY_URI:$IMAGE_TAG --region $AWS_DEFAULT_REGION
+artifacts:
+  files: []
