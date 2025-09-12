@@ -15,7 +15,7 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH}
-      - REPOSITORY_URI=683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:latest
+      - REPOSITORY_URI=683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda
   build:
     commands:
       - echo Building Docker image...
@@ -36,5 +36,6 @@ phases:
 
 artifacts:
   files: []
+
 
 
