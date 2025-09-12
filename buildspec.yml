@@ -20,22 +20,23 @@ phases:
     commands:
       - echo Building Docker image...
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
+      - docker tag 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:$IMAGE_TAG 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:latest
   post_build:
     commands:
       - echo Pushing Docker image to ECR...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - docker push $REPOSITORY_URI:latest
+      - docker push 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:$IMAGE_TAG
+      - docker push 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:latest
       - echo "Waiting for image to be available in ECR..."
-      - sleep 10
+      - sleep 20
       - echo "Updating Lambda function to use latest image..."
       - aws lambda update-function-code \
           --function-name $LAMBDA_FUNCTION_NAME \
-          --image-uri $REPOSITORY_URI:latest \
+          --image-uri 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:latest \
           --region $AWS_DEFAULT_REGION
 
 artifacts:
   files: []
+
 
 
 
