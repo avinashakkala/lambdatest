@@ -15,28 +15,24 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH}
-      - REPOSITORY_URI=683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda
+      - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REPOSITORY_NAME
   build:
     commands:
       - echo Building Docker image...
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
-      - docker tag 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:$IMAGE_TAG 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:latest
+      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
   post_build:
     commands:
       - echo Pushing Docker image to ECR...
-      - docker push 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:$IMAGE_TAG
-      - docker push 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
       - echo "Waiting for image to be available in ECR..."
-      - sleep 20
+      - sleep 10
       - echo "Updating Lambda function to use latest image..."
       - aws lambda update-function-code \
           --function-name $LAMBDA_FUNCTION_NAME \
-          --image-uri 683627574286.dkr.ecr.ap-south-1.amazonaws.com/fastapi-lambda:latest \
+          --image-uri $REPOSITORY_URI:latest \
           --region $AWS_DEFAULT_REGION
 
 artifacts:
   files: []
-
-
-
-
