@@ -26,10 +26,12 @@ phases:
       - echo Pushing Docker image to ECR...
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
-      - echo "Updating Lambda function to use new image..."
+      - echo "Waiting for image to be available in ECR..."
+      - sleep 10
+      - echo "Updating Lambda function to use latest image..."
       - aws lambda update-function-code \
           --function-name $LAMBDA_FUNCTION_NAME \
-          --image-uri $REPOSITORY_URI:$IMAGE_TAG \
+          --image-uri $REPOSITORY_URI:latest \
           --region $AWS_DEFAULT_REGION
 
 artifacts:
