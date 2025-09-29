@@ -1,21 +1,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from mangum import Mangum
 
 # Initialize FastAPI app
-app = FastAPI(title="FastAPI Lambda Backend")
+app = FastAPI(title="FastAPI GCP Backend")
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For production, restrict to CloudFront/API Gateway URL
+    allow_origins=["*"],  # For production, restrict to your frontend domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# In-memory store (resets on each cold start)
+# In-memory store (resets on each new container instance)
 users = []
 
 # Pydantic model for request body
@@ -25,21 +24,13 @@ class User(BaseModel):
 # Routes
 @app.get("/")
 async def root():
-    return {"message": "FastAPI Lambda Backend is running!!!"}
+    return {"message": "FastAPI GCP Backend is running!!!"}
 
 @app.post("/users")
-async def create_user(user: User):   # use async for Lambda safety
+async def create_user(user: User):
     users.append(user.name)
     return {"message": f"User '{user.name}' created", "total_users": len(users)}
 
 @app.get("/users/count")
 async def count_users():
     return {"total_users": len(users)}
-
-
-
-# AWS Lambda handler
-handler = Mangum(app, lifespan="off")
-
-
-
